@@ -14,6 +14,7 @@ extern "C" {
 
 void uac_connection_callback(UAC_DEV_T *adev, int status);
 void uac_disconnect_callback(UAC_DEV_T *adev, int status);
+uint32_t uac_init_device(UAC_DEV_T *adev);
 void uac_set_voice_data(UAC_DEV_T *adev, uint8_t *voice_data, uint32_t voice_len);
 void uac_print_all_devices();
 

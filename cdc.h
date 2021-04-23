@@ -14,6 +14,7 @@ extern "C" {
 
 void cdc_connection_callback(CDC_DEV_T *cdev, int status);
 void cdc_disconnect_callback(CDC_DEV_T *cdev, int status);
+uint32_t cdc_init_device(CDC_DEV_T *cdev);
 uint32_t cdc_write_data(CDC_DEV_T *cdev, uint8_t *tdata, uint32_t data_len);
 void cdc_print_all_rxdata();
 

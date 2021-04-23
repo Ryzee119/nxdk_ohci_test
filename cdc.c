@@ -11,6 +11,7 @@ typedef struct cdc_info
 {
     LINE_CODING_T *line_code;
     uint8_t rdata[RX_BUFF_LEN];
+    uint8_t rdata_pos;
     uint8_t rstatus[RX_BUFF_LEN];
     uint8_t *tdata;
 } cdc_info, *pcdc_info;
@@ -18,20 +19,23 @@ typedef struct cdc_info
 static void cdc_data_in_callback(CDC_DEV_T *cdev, uint8_t *rdata, int data_len)
 {
     cdc_info *cdata = (cdc_info *)cdev->user_data;
-    uint32_t capped_len = (data_len < RX_BUFF_LEN) ? data_len : (RX_BUFF_LEN - 1);
-    memcpy(cdata->rdata, rdata, capped_len);
-    cdata->rdata[capped_len] = '\0';
+
+    //Simple ring buffer
+    for (uint32_t i = cdata->rdata_pos; i < (cdata->rdata_pos + data_len); i++)
+    {
+        cdata->rdata[i % RX_BUFF_LEN] = rdata[i - cdata->rdata_pos];
+    }
+    cdata->rdata_pos = cdata->rdata_pos + data_len - RX_BUFF_LEN;
 }
 
 static void cdc_status_in_callback(CDC_DEV_T *cdev, uint8_t *rdata, int data_len)
 {
     cdc_info *cdata = (cdc_info *)cdev->user_data;
-    uint32_t capped_len = (data_len < RX_BUFF_LEN) ? data_len : (RX_BUFF_LEN - 1);
+    uint32_t capped_len = (data_len < RX_BUFF_LEN) ? data_len : RX_BUFF_LEN;
     memcpy(cdata->rstatus, rdata, capped_len);
-    cdata->rstatus[capped_len] = '\0';
 }
 
-static uint32_t cdc_init_device(CDC_DEV_T *cdev)
+uint32_t cdc_init_device(CDC_DEV_T *cdev)
 {
     //Get some memory
     if (cdev->user_data == NULL)
@@ -107,7 +111,12 @@ void cdc_print_all_rxdata()
     while (cdev != NULL)
     {
         cdc_info *cdata = (cdc_info *)cdev->user_data;
-        debugPrint("CDC %d: Rx: %s\n", cdc_num++, cdata->rdata);
+        debugPrint("CDC %d: Rx: ", cdc_num++);
+        for (uint32_t i = 0; i < RX_BUFF_LEN; i++)
+        {
+            debugPrint("%c", cdata->rdata[i]);
+        }
+        debugPrint("\n\n");
         cdc_write_data(cdev, (uint8_t *)msg, strlen(msg));
         if (!cdev->rx_busy)
             usbh_cdc_start_to_receive_data(cdev, cdc_data_in_callback);

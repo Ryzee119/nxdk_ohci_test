@@ -10,7 +10,7 @@ static void hid_int_read_callback(HID_DEV_T *hdev, uint16_t ep_addr, int32_t sta
     memcpy(hdev->user_data, rdata, data_len <= MAX_PACKET ? data_len : MAX_PACKET);
 }
 
-static uint32_t hid_init_device(HID_DEV_T *hdev)
+uint32_t hid_init_device(HID_DEV_T *hdev)
 {
     hdev->user_data = malloc(MAX_PACKET);
     assert(hdev->user_data != NULL);
@@ -46,7 +46,8 @@ void hid_print_all_rxdata(int32_t max_len)
     int32_t i = 0;
     while (hdev != NULL)
     {
-        debugPrint("HID #%d: ", i++);
+        static int j = 0;
+        debugPrint("HID %i #%d: ", j++, i++);
         debugPrintHex((const char *)hdev->user_data, (int)max_len);
         debugPrint("\n\n");
         hdev = hdev->next;
