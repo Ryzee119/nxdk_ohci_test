@@ -70,7 +70,7 @@ uint32_t uac_init_device(UAC_DEV_T *adev)
     //Stereo, 16 bits (192)
     //Stereo, 24 bits (288)
     uint32_t minimum_pkt_size = SPEAKER_BIT_RES * SPEAKER_NUM_CHANNELS * 6;
-    if (adev->asif_out.ep->wMaxPacketSize < minimum_pkt_size)
+    if (adev->asif_out.ep && adev->asif_out.ep->wMaxPacketSize < minimum_pkt_size)
     {
         debugPrint("UAC: Warning, this sample expects a %d channel, %d bit compatible audio device\n",
                    SPEAKER_NUM_CHANNELS,
