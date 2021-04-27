@@ -9,6 +9,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include <hal/debug.h>
 #include "usbh_lib.h"
 #include "usbh_cdc.h"
 

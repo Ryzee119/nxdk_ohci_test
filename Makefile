@@ -24,6 +24,9 @@ SRCS += \
 	$(CURDIR)/fatfs/ffsystem.c \
 	$(CURDIR)/fatfs/ffunicode.c
 
-CFLAGS += -I$(CURDIR)/fatfs -O2 -DUSB_MEMORY_POOL_SIZE=1024*1204 -DMEM_POOL_UNIT_NUM=512
+CFLAGS += \
+		-I$(CURDIR)/fatfs -O2 \
+		-DUSB_MEMORY_POOL_SIZE=1024*1204 \
+		-DMEM_POOL_UNIT_NUM=512
 
 include $(NXDK_DIR)/Makefile

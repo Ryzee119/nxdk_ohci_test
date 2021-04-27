@@ -46,8 +46,7 @@ void hid_print_all_rxdata(int32_t max_len)
     int32_t i = 0;
     while (hdev != NULL)
     {
-        static int j = 0;
-        debugPrint("HID %i #%d: ", j++, i++);
+        debugPrint("HID #%d: ", i++);
         debugPrintHex((const char *)hdev->user_data, (int)max_len);
         debugPrint("\n\n");
         hdev = hdev->next;

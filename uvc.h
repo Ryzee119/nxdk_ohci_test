@@ -9,6 +9,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include <hal/debug.h>
 #include <xboxkrnl/xboxkrnl.h>
 #include "usbh_lib.h"
 #include "usbh_uvc.h"
