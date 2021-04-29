@@ -6,8 +6,8 @@ SRCS += \
 	hid.c \
 	uac.c \
 	cdc.c \
-	uvc.c
-	#msc.c (todo)
+	uvc.c \
+	msc.c
 
 #NXDK_USB_DISABLE_HID=y
 NXDK_USB_ENABLE_CDC=y
@@ -15,18 +15,16 @@ NXDK_USB_ENABLE_UAC=y
 NXDK_USB_ENABLE_UVC=y
 NXDK_USB_ENABLE_MSC=y
 
-#Manually include MSC lib with fatfs
+#Sample uses fatfs for Mass Storage Testing
 SRCS += \
-	$(NXDK_DIR)/lib/usb/libusbohci/src_msc/msc_driver.c \
-	$(NXDK_DIR)/lib/usb/libusbohci/src_msc/msc_xfer.c \
 	$(CURDIR)/fatfs/diskio.c \
 	$(CURDIR)/fatfs/ff.c \
 	$(CURDIR)/fatfs/ffsystem.c \
 	$(CURDIR)/fatfs/ffunicode.c
 
 CFLAGS += \
-		-I$(CURDIR)/fatfs -O2 \
-		-DUSB_MEMORY_POOL_SIZE=1024*1204 \
-		-DMEM_POOL_UNIT_NUM=512
+	-I$(CURDIR)/fatfs -O2 \
+	-DUSB_MEMORY_POOL_SIZE=1024*1204 \
+	-DMEM_POOL_UNIT_NUM=512
 
 include $(NXDK_DIR)/Makefile

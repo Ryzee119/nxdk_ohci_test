@@ -19,7 +19,7 @@ typedef struct audio_stream_data
     uint32_t voice_pos;
     int16_t record_data[256];
     int32_t record_amplitude;
-} audio_stream_data, *pjaudio_stream_data;
+} audio_stream_data, *paudio_stream_data;
 
 static int32_t uac_audio_in_callback(UAC_DEV_T *adev, uint8_t *rdata, int len)
 {

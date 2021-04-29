@@ -8,6 +8,7 @@
 #include "uac.h"
 #include "cdc.h"
 #include "uvc.h"
+#include "msc.h"
 
 /*
  * This demo will initialise the usb stack, detect events on the usb ports
@@ -69,6 +70,9 @@ int main(void)
     //Communication Device Class interface detected (Virtual Comport)
     usbh_install_cdc_conn_callback(cdc_connection_callback, cdc_disconnect_callback);
 
+    //Mass Storage Device interface detected
+    usbh_install_msc_conn_callback(msc_connection_callback, msc_disconnect_callback);
+
     //USB Audio Class interface detected. Only register a disconnect callback.
     //We handle the connection at the device level as these are complex devices with many interfaces.
     usbh_install_uac_conn_callback(NULL, uac_disconnect_callback);
@@ -85,6 +89,7 @@ int main(void)
         hid_print_all_rxdata(32);
         uac_print_all_devices();
         cdc_print_all_rxdata();
+        msc_print_all_directories();
         Sleep(50);
     }
 

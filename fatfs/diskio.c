@@ -9,23 +9,44 @@
 
 #include "ff.h" /* Obtains integer types */
 #include "usbh_lib.h"
+#include "usbh_msc.h"
 #include "usb.h"
 #include "diskio.h" /* Declarations of disk functions */
-
-/* FATFS window buffer is cachable. Must not use it directly. */
-BYTE *fatfs_win_buff;
 
 /*-----------------------------------------------------------------------*/
 /* Get Drive Status                                                      */
 /*-----------------------------------------------------------------------*/
+
+static MSC_T *find_msc_by_drive(int drv_no)
+{
+	MSC_T *msc = usbh_msc_get_device_list();
+
+	while (msc != NULL)
+	{
+		if (msc->drv_no == drv_no)
+			return msc;
+		msc = msc->next;
+	}
+	return NULL;
+}
+
+static int umas_disk_status(int drv_no)
+{
+	if (find_msc_by_drive(drv_no) == NULL)
+		return STA_NODISK;
+
+	return RES_OK;
+}
 
 DSTATUS disk_status(
 	BYTE pdrv /* Physical drive nmuber to identify the drive */
 )
 {
 	usbh_pooling_hubs();
-	if (usbh_umas_disk_status(pdrv) == UMAS_ERR_NO_DEVICE)
+
+	if (umas_disk_status(pdrv) == STA_NODISK)
 		return STA_NODISK;
+
 	return RES_OK;
 }
 
@@ -37,13 +58,11 @@ DSTATUS disk_initialize(
 	BYTE pdrv /* Physical drive nmuber to identify the drive */
 )
 {
-	if (fatfs_win_buff == NULL)
-	{
-		fatfs_win_buff = usbh_alloc_mem(FF_MAX_SS);
-	}
 	usbh_pooling_hubs();
-	if (usbh_umas_disk_status(pdrv) == UMAS_ERR_NO_DEVICE)
+
+	if (umas_disk_status(pdrv) == STA_NODISK)
 		return STA_NODISK;
+
 	return RES_OK;
 }
 
@@ -58,17 +77,15 @@ DRESULT disk_read(
 	UINT count	  /* Number of sectors to read */
 )
 {
-	int ret;
-	int sec_size = 512;
+	DRESULT ret;
+	INT sec_size = 512;
 
-	if (count * sec_size > FF_MAX_SS)
-		return RES_ERROR;
+	MSC_T *msc = find_msc_by_drive(pdrv);
 
-	if (fatfs_win_buff == NULL)
-		return RES_NOTRDY;
-
-	ret = (DRESULT)usbh_umas_read(pdrv, sector, count, fatfs_win_buff);
-	memcpy(buff, fatfs_win_buff, count * sec_size);
+	uint8_t *rx_buff = usbh_alloc_mem(count * sec_size);
+	ret = (DRESULT)usbh_umas_read(msc, sector, count, rx_buff);
+	memcpy(buff, rx_buff, count * sec_size);
+	usbh_free_mem(rx_buff, count * sec_size);
 
 	if (ret == UMAS_OK)
 		return RES_OK;
@@ -79,7 +96,7 @@ DRESULT disk_read(
 	if (ret == UMAS_ERR_IO)
 		return RES_ERROR;
 
-	return (DRESULT)ret;
+	return ret;
 }
 
 /*-----------------------------------------------------------------------*/
@@ -95,18 +112,17 @@ DRESULT disk_write(
 	UINT count		  /* Number of sectors to write */
 )
 {
-	int ret;
-	int sec_size = 512;
+	INT ret;
+	INT sec_size = 512;
 
-	if (count * sec_size > FF_MAX_SS)
-		return RES_ERROR;
+	MSC_T *msc = find_msc_by_drive(pdrv);
 
-	if (fatfs_win_buff == NULL)
-		return RES_NOTRDY;
+	uint8_t *tx_buff = usbh_alloc_mem(count * sec_size);
+	memcpy(tx_buff, buff, count * sec_size);
 
-	memcpy(fatfs_win_buff, buff, count * sec_size);
-	ret = usbh_umas_write(pdrv, sector, count, fatfs_win_buff);
+	ret = usbh_umas_write(msc, sector, count, tx_buff);
 
+	usbh_free_mem(tx_buff, count * sec_size);
 	if (ret == UMAS_OK)
 		return RES_OK;
 
@@ -131,16 +147,26 @@ DRESULT disk_ioctl(
 	void *buff /* Buffer to send/receive control data */
 )
 {
-	int ret = usbh_umas_ioctl(pdrv, cmd, buff);
 
-	if (ret == UMAS_OK)
-		return RES_OK;
+	MSC_T *msc = find_msc_by_drive(pdrv);
 
-	if (ret == UMAS_ERR_IVALID_PARM)
-		return RES_PARERR;
-
-	if (ret == UMAS_ERR_NO_DEVICE)
+	if (msc == NULL)
 		return RES_NOTRDY;
+
+	switch (cmd)
+	{
+	case GET_SECTOR_SIZE:
+		*(WORD *)buff = msc->nSectorSize;
+		break;
+	case GET_BLOCK_SIZE:
+		*(DWORD *)buff = msc->nSectorSize;
+		break;
+	case GET_SECTOR_COUNT:
+		*(LBA_t *)buff = msc->uTotalSectorN;
+		break;
+	default:
+		break;
+	}
 
 	return RES_PARERR;
 }
