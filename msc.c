@@ -42,16 +42,17 @@ static FRESULT write_to_file(char *filename, uint8_t *data, uint32_t len)
     UINT br;
     FIL fil;
 
-    //If file already exists, dont write anything
+    //FA_CREATE_NEW only writes if file doesnt already exist.
     res = f_open(&fil, (const TCHAR *)filename, FA_WRITE | FA_CREATE_NEW);
     if (res != FR_OK)
     {
         if (res != FR_EXIST)
-            debugPrint("ERROR: Could not open %s for WRITE, error %d\n", res);
+            debugPrint("ERROR: Could not open %s for WRITE, error %d\n", filename, res);
         return res;
     }
 
     res = f_write(&fil, data, len, &br);
+
     f_close(&fil);
     if (res != FR_OK)
     {
@@ -104,11 +105,15 @@ uint32_t msc_init_device(MSC_T *msc_dev)
     fdata->logical_vol[0] = msc_dev->drv_no + '0';
     if (f_mount(&fdata->fatfs_vol, fdata->logical_vol, 1) != FR_OK)
     {
-        debugPrint("MSC: Error, could not mount %s, MSC UID: %d Lun: %d\n", fdata->logical_vol, msc_dev->uid, msc_dev->lun);
+        debugPrint("MSC: Error, could not mount %s, MSC UID: %d Lun: %d\n", fdata->logical_vol,
+                                                                            msc_dev->uid,
+                                                                            msc_dev->lun);
         logical_drives[drv] = 0;
         return UMAS_ERR_INIT_DEVICE;
     }
-    debugPrint("MSC: Mounted %s, MSC UID: %d Lun: %d OK\n", fdata->logical_vol, msc_dev->uid, msc_dev->lun);
+    debugPrint("MSC: Mounted %s, MSC UID: %d Lun: %d OK\n", fdata->logical_vol,
+                                                            msc_dev->uid,
+                                                            msc_dev->lun);
     return UMAS_OK;
 }
 
@@ -140,8 +145,10 @@ void msc_disconnect_callback(MSC_T *msc_dev, int status)
 void msc_print_all_directories()
 {
     MSC_T *msc_dev = usbh_msc_get_device_list();
+
     if (msc_dev == NULL)
         return;
+
     if (msc_dev->user_data == NULL)
         return;
 
@@ -153,7 +160,7 @@ void msc_print_all_directories()
         msc_filesystem *fdata = (msc_filesystem *)msc_dev->user_data;
         if (f_chdrive(fdata->logical_vol) == FR_OK)
         {
-            debugPrint("MSC Directory List %s:\n", fdata->logical_vol);
+            debugPrint("MSC directory listing %s\n", fdata->logical_vol);
             list_directory();
 
             //Save a test file to each drive

@@ -42,8 +42,6 @@ DSTATUS disk_status(
 	BYTE pdrv /* Physical drive nmuber to identify the drive */
 )
 {
-	usbh_pooling_hubs();
-
 	if (umas_disk_status(pdrv) == STA_NODISK)
 		return STA_NODISK;
 
@@ -58,8 +56,6 @@ DSTATUS disk_initialize(
 	BYTE pdrv /* Physical drive nmuber to identify the drive */
 )
 {
-	usbh_pooling_hubs();
-
 	if (umas_disk_status(pdrv) == STA_NODISK)
 		return STA_NODISK;
 
@@ -82,9 +78,15 @@ DRESULT disk_read(
 
 	MSC_T *msc = find_msc_by_drive(pdrv);
 
+	if (msc == NULL)
+		return RES_NOTRDY;
+
 	uint8_t *rx_buff = usbh_alloc_mem(count * sec_size);
+
 	ret = (DRESULT)usbh_umas_read(msc, sector, count, rx_buff);
+
 	memcpy(buff, rx_buff, count * sec_size);
+
 	usbh_free_mem(rx_buff, count * sec_size);
 
 	if (ret == UMAS_OK)
@@ -117,12 +119,16 @@ DRESULT disk_write(
 
 	MSC_T *msc = find_msc_by_drive(pdrv);
 
+	if (msc == NULL)
+		return RES_NOTRDY;
+
 	uint8_t *tx_buff = usbh_alloc_mem(count * sec_size);
 	memcpy(tx_buff, buff, count * sec_size);
 
 	ret = usbh_umas_write(msc, sector, count, tx_buff);
 
 	usbh_free_mem(tx_buff, count * sec_size);
+
 	if (ret == UMAS_OK)
 		return RES_OK;
 

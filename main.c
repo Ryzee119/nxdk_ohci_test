@@ -86,6 +86,7 @@ int main(void)
         usbh_pooling_hubs();
         XVideoWaitForVBlank();
         debugClearScreen();
+        usbh_memory_used();
         hid_print_all_rxdata(32);
         uac_print_all_devices();
         cdc_print_all_rxdata();
