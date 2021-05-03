@@ -11,7 +11,6 @@ git submodule update
 ```
 
 Then:
-
 ```
 cd ~
 git clone https://github.com/Ryzee119/nxdk_ohci_test.git
@@ -23,7 +22,7 @@ make NXDK_DIR=/path/to/nxdk -j
 * HID
 * USB Audio class (Speaker + microphone)
 * CDC Class
+* Mass storage class example
 
 ## Todo
-* Mass storage class example
 * USB video class example 
