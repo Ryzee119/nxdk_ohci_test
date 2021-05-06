@@ -14,10 +14,6 @@
 #include "uvc.h"
 #include "msc.h"
 
-/*
- * This demo will initialise the usb stack, detect events on the usb ports
- * and print the device PID and VID.
-*/
 void device_connection_callback(UDEV_T *udev, int status)
 {
     log_print("Device connected on port %u (PID: %04x VID: %04x)\n", udev->port_num,
