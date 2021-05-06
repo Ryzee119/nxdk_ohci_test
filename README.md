@@ -13,7 +13,7 @@ git submodule update
 Then:
 ```
 cd ~
-git clone https://github.com/Ryzee119/nxdk_ohci_test.git
+git clone https://github.com/Ryzee119/nxdk_ohci_test.git --recursive
 cd nxdk_ohci_test
 make NXDK_DIR=/path/to/nxdk -j
 ```
