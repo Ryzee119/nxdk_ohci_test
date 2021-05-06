@@ -10,6 +10,7 @@ extern "C" {
 
 #include <stdint.h>
 #include <hal/debug.h>
+#include "gui.h"
 #include "usbh_lib.h"
 #include "usbh_hid.h"
 

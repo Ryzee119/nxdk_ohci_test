@@ -4,6 +4,10 @@
 #include <usbh_lib.h>
 #include <usb.h>
 
+#include "lvgl.h"
+#include "lv_sdl_drv_display.h"
+
+#include "gui.h"
 #include "hid.h"
 #include "uac.h"
 #include "cdc.h"
@@ -16,7 +20,7 @@
 */
 void device_connection_callback(UDEV_T *udev, int status)
 {
-    debugPrint("Device connected on port %u (PID: %04x VID: %04x)\n", udev->port_num,
+    log_print("Device connected on port %u (PID: %04x VID: %04x)\n", udev->port_num,
                udev->descriptor.idProduct,
                udev->descriptor.idVendor);
 
@@ -45,7 +49,7 @@ void device_connection_callback(UDEV_T *udev, int status)
 
 void device_disconnect_callback(UDEV_T *udev, int status)
 {
-    debugPrint("Device disconnected on port %u (PID: %04x VID: %04x)\n", udev->port_num,
+    log_print("Device disconnected on port %u (PID: %04x VID: %04x)\n", udev->port_num,
                udev->descriptor.idProduct,
                udev->descriptor.idVendor);
 }
@@ -53,6 +57,10 @@ void device_disconnect_callback(UDEV_T *udev, int status)
 int main(void)
 {
     XVideoSetMode(640, 480, 32, REFRESH_DEFAULT);
+
+    lv_init();
+    lv_sdl_init_display("USB-Test", 640, 480);
+    create_gui();
 
     usbh_core_init();
     usbh_hid_init();
@@ -83,15 +91,14 @@ int main(void)
 
     while (1)
     {
+        textview_clear();
         usbh_pooling_hubs();
-        XVideoWaitForVBlank();
-        debugClearScreen();
         usbh_memory_used();
-        hid_print_all_rxdata(32);
+        hid_print_all_rxdata(25);
         uac_print_all_devices();
         cdc_print_all_rxdata();
         msc_print_all_directories();
-        Sleep(50);
+        lv_task_handler();
     }
 
     usbh_core_deinit();

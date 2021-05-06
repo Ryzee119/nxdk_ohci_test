@@ -24,14 +24,14 @@ static uint32_t list_directory()
             res = f_readdir(&dir, &fno);
             if (res != FR_OK || fno.fname[0] == 0)
                 break;
-            debugPrint("%s\n", fno.fname);
+            textview_print("%s %s\n", (fno.fattrib & AM_DIR) ? LV_SYMBOL_DIRECTORY : LV_SYMBOL_FILE, fno.fname);
             file_count++;
         }
         f_closedir(&dir);
     }
 
     if (file_count == 0)
-        debugPrint("No files\n");
+        textview_print("No files\n");
 
     return file_count;
 }
@@ -47,7 +47,7 @@ static FRESULT write_to_file(char *filename, uint8_t *data, uint32_t len)
     if (res != FR_OK)
     {
         if (res != FR_EXIST)
-            debugPrint("ERROR: Could not open %s for WRITE, error %d\n", filename, res);
+            log_print("ERROR: Could not open %s for WRITE, error %d\n", filename, res);
         return res;
     }
 
@@ -56,12 +56,12 @@ static FRESULT write_to_file(char *filename, uint8_t *data, uint32_t len)
     f_close(&fil);
     if (res != FR_OK)
     {
-        debugPrint("ERROR: Could not write %s with error %i\n", filename, res);
+        log_print("ERROR: Could not write %s with error %i\n", filename, res);
         return FR_DISK_ERR;
     }
     else
     {
-        debugPrint("Writing %s for %u bytes ok!\n", filename, br);
+        log_print("Writing %s for %u bytes ok!\n", filename, br);
     }
     return FR_OK;
 }
@@ -105,13 +105,13 @@ uint32_t msc_init_device(MSC_T *msc_dev)
     fdata->logical_vol[0] = msc_dev->drv_no + '0';
     if (f_mount(&fdata->fatfs_vol, fdata->logical_vol, 1) != FR_OK)
     {
-        debugPrint("MSC: Error, could not mount %s, MSC UID: %d Lun: %d\n", fdata->logical_vol,
+        log_print("MSC: Error, could not mount %s, MSC UID: %d Lun: %d\n", fdata->logical_vol,
                                                                             msc_dev->uid,
                                                                             msc_dev->lun);
         logical_drives[drv] = 0;
         return UMAS_ERR_INIT_DEVICE;
     }
-    debugPrint("MSC: Mounted %s, MSC UID: %d Lun: %d OK\n", fdata->logical_vol,
+    log_print("MSC: Mounted %s, MSC UID: %d Lun: %d OK\n", fdata->logical_vol,
                                                             msc_dev->uid,
                                                             msc_dev->lun);
     return UMAS_OK;
@@ -160,14 +160,14 @@ void msc_print_all_directories()
         msc_filesystem *fdata = (msc_filesystem *)msc_dev->user_data;
         if (f_chdrive(fdata->logical_vol) == FR_OK)
         {
-            debugPrint("MSC directory listing %s\n", fdata->logical_vol);
+            textview_print("MSC %s directory listing %s\n", LV_SYMBOL_USB LV_SYMBOL_DRIVE, fdata->logical_vol);
             list_directory();
 
             //Save a test file to each drive
             char *msg = "Hello from nxdk!";
             write_to_file("nxdk_test.txt", (uint8_t *)msg, strlen(msg));
         }
-        debugPrint("\n\n");
+        textview_print("\n\n");
         msc_dev = msc_dev->next;
     }
 }

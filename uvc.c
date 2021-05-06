@@ -37,14 +37,14 @@ int uvc_video_in_callback(UVC_DEV_T *vdev, uint8_t *data, int len)
 
     uint32_t cb = vdata->current_buffer;
     uint32_t nb = (cb + 1) % BUFF_CNT;
-    debugPrint("uvc_video_in_callback\n");    
+    log_print("uvc_video_in_callback\n");    
     if (vdata->frame_buff[nb].state != IMAGE_BUFF_FREE)
     {
         /*
          *  Next image buffer is in used.
          *  Just drop this newly received image and reuse the same image buffer.
          */
-        debugPrint("Drop!\n");
+        log_print("Drop!\n");
     }
     else
     {
@@ -58,7 +58,7 @@ int uvc_video_in_callback(UVC_DEV_T *vdev, uint8_t *data, int len)
         /* assign the next image buffer to receive next image from USB */
         usbh_uvc_set_video_buffer(vdev, vdata->frame_buff[nb].buffer, vdata->frame_buff[nb].max_len);
     }
-    debugPrint("Current buffer: %d, %d\n", cb, len);
+    log_print("Current buffer: %d, %d\n", cb, len);
     return 0;
 }
 
@@ -76,15 +76,15 @@ uint32_t uvc_init_device(UVC_DEV_T *vdev)
         if (ret != 0)
             break;
 
-        debugPrint("[%d] %s, %d x %d\n", i, (vdata->format == UVC_FORMAT_MJPEG ? "MJPEG" : "YUYV"), vdata->width, vdata->height);
+        log_print("[%d] %s, %d x %d\n", i, (vdata->format == UVC_FORMAT_MJPEG ? "MJPEG" : "YUYV"), vdata->width, vdata->height);
     }
     ret = usbh_get_video_format(vdev, i - 1, &vdata->format, &vdata->width, &vdata->height);
 
-    debugPrint("Setting video to format: %s %d %d\n", (vdata->format == UVC_FORMAT_MJPEG ? "MJPEG" : "YUYV"), vdata->width, vdata->height);
+    log_print("Setting video to format: %s %d %d\n", (vdata->format == UVC_FORMAT_MJPEG ? "MJPEG" : "YUYV"), vdata->width, vdata->height);
     ret = usbh_set_video_format(vdev, vdata->format, vdata->width, vdata->height);
     if (ret != 0)
     {
-        debugPrint("usbh_set_video_format failed! - 0x%x\n", ret);
+        log_print("usbh_set_video_format failed! - 0x%x\n", ret);
         return ret;
     }
 
@@ -111,8 +111,8 @@ uint32_t uvc_init_device(UVC_DEV_T *vdev)
     ret = usbh_uvc_start_streaming(vdev, uvc_video_in_callback);
     if (ret != 0)
     {
-        debugPrint("usbh_uvc_start_streaming failed! - %d\n", ret);
-        debugPrint("Please re-connect UVC device...\n");
+        log_print("usbh_uvc_start_streaming failed! - %d\n", ret);
+        log_print("Please re-connect UVC device...\n");
     }
     return ret;
 }
@@ -124,7 +124,7 @@ void uvc_connection_callback(UVC_DEV_T *vdev, int status)
 
 void uvc_disconnect_callback(UVC_DEV_T *vdev, int status)
 {
-    debugPrint("USB Video device disconnected\n");
+    log_print("USB Video device disconnected\n");
     if (vdev->user_data)
        free(vdev->user_data);
 }

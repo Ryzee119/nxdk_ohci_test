@@ -58,7 +58,7 @@ uint32_t uac_init_device(UAC_DEV_T *adev)
     if (ret)
     {
         speaker_rate = 0;
-        debugPrint("UAC: Failed to open device. Error: %d\n", ret);
+        log_print("UAC: Failed to open device. Error: %d\n", ret);
         return ret;
     }
 
@@ -72,7 +72,7 @@ uint32_t uac_init_device(UAC_DEV_T *adev)
     uint32_t minimum_pkt_size = SPEAKER_BIT_RES * SPEAKER_NUM_CHANNELS * 6;
     if (adev->asif_out.ep && adev->asif_out.ep->wMaxPacketSize < minimum_pkt_size)
     {
-        debugPrint("UAC: Warning, this sample expects a %d channel, %d bit compatible audio device\n",
+        log_print("UAC: Warning, this sample expects a %d channel, %d bit compatible audio device\n",
                    SPEAKER_NUM_CHANNELS,
                    SPEAKER_BIT_RES);
     }
@@ -83,7 +83,7 @@ uint32_t uac_init_device(UAC_DEV_T *adev)
     if (ret)
     {
         speaker_rate = 0;
-        debugPrint("UAC: Failed to setup speaker. Error: %d\n", ret);
+        log_print("UAC: Failed to setup speaker. Error: %d\n", ret);
     }
 
     ret = usbh_uac_sampling_rate_control(adev, UAC_MICROPHONE, UAC_SET_CUR, &mic_rate);
@@ -91,7 +91,7 @@ uint32_t uac_init_device(UAC_DEV_T *adev)
     if (ret)
     {
         mic_rate = 0;
-        debugPrint("UAC: Failed to setup microphone. Error: %d\n", ret);
+        log_print("UAC: Failed to setup microphone. Error: %d\n", ret);
     }
 
     //Set sound to play
@@ -102,12 +102,12 @@ uint32_t uac_init_device(UAC_DEV_T *adev)
         ret = usbh_uac_start_audio_out(adev, uac_audio_out_callback);
         if (ret)
         {
-            debugPrint("UAC: Failed starting audio. Error: %d\n", ret);
+            log_print("UAC: Failed starting audio. Error: %d\n", ret);
         }
     }
     else
     {
-        debugPrint("UAC: Warning, speaker does not support %dHz audio\n", SPEAKER_SAMPLE_RATE);
+        log_print("UAC: Warning, speaker does not support %dHz audio\n", SPEAKER_SAMPLE_RATE);
     }
 
     if (mic_rate && mic_rate == MIC_SAMPLE_RATE)
@@ -115,12 +115,12 @@ uint32_t uac_init_device(UAC_DEV_T *adev)
         ret = usbh_uac_start_audio_in(adev, uac_audio_in_callback);
         if (ret)
         {
-            debugPrint("UAC: Failed starting microphone input. Error: %d\n", ret);
+            log_print("UAC: Failed starting microphone input. Error: %d\n", ret);
         }
     }
     else
     {
-        debugPrint("UAC: Warning, microphone does not support %dHz recording\n", MIC_SAMPLE_RATE);
+        log_print("UAC: Warning, microphone does not support %dHz recording\n", MIC_SAMPLE_RATE);
     }
 
     return ret;
@@ -133,7 +133,7 @@ void uac_connection_callback(UAC_DEV_T *adev, int status)
 
 void uac_disconnect_callback(UAC_DEV_T *adev, int status)
 {
-    debugPrint("USB Audio device disconnected\n");
+    log_print("USB Audio device disconnected\n");
     if (adev->user_data)
         free(adev->user_data);
 }
@@ -179,9 +179,9 @@ void uac_print_all_devices()
         average /= packet_size;
         sdata->record_amplitude = average;
 
-        debugPrint("AUDIO #%d: %s ; ", i, adev->asif_out.flag_streaming ? "Streaming audio..." : "No Speaker");
-        debugPrint("MIC %s %i \n", adev->asif_in.flag_streaming ? "Level: " : "No Mic", abs(sdata->record_amplitude));
-        debugPrint("\n");
+        textview_print("AUDIO %s #%d: %s ; ", LV_SYMBOL_USB LV_SYMBOL_AUDIO, i, adev->asif_out.flag_streaming ? "Streaming audio..." : "No Speaker");
+        textview_print("Microphone %s %i \n", adev->asif_in.flag_streaming ? "Level: " : "No Mic", abs(sdata->record_amplitude));
+        textview_print("\n");
         adev = adev->next;
         i++;
     }

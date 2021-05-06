@@ -64,13 +64,13 @@ uint32_t cdc_init_device(CDC_DEV_T *cdev)
 
 void cdc_connection_callback(CDC_DEV_T *cdev, int status)
 {
-    debugPrint("CDC device connected\n");
+    log_print("CDC device connected\n");
     cdc_init_device(cdev);
 }
 
 void cdc_disconnect_callback(CDC_DEV_T *cdev, int status)
 {
-    debugPrint("CDC device disconnected\n");
+    log_print("CDC device disconnected\n");
     if (cdev->user_data)
     {
         cdc_info *cdata = (cdc_info *)cdev->user_data;
@@ -106,17 +106,17 @@ void cdc_print_all_rxdata()
     //Create output test message
     static uint16_t j = 0;
     char msg[32];
-    sprintf(msg, "Hello from nxdk %d\r\n", j++);
+    sprintf(msg, "Hello from nxdk %d\n", j++);
 
     while (cdev != NULL)
     {
         cdc_info *cdata = (cdc_info *)cdev->user_data;
-        debugPrint("CDC %d: Rx: ", cdc_num++);
+        textview_print("CDC %s #%d. Sending periodic data... Rx data:\n", LV_SYMBOL_USB LV_SYMBOL_LOOP, cdc_num++);
         for (uint32_t i = 0; i < RX_BUFF_LEN; i++)
         {
-            debugPrint("%c", cdata->rdata[i]);
+            textview_print("%c", cdata->rdata[i]);
         }
-        debugPrint("\n\n");
+        textview_print("\n\n");
         cdc_write_data(cdev, (uint8_t *)msg, strlen(msg));
         if (!cdev->rx_busy)
             usbh_cdc_start_to_receive_data(cdev, cdc_data_in_callback);

@@ -19,13 +19,13 @@ uint32_t hid_init_device(HID_DEV_T *hdev)
 
 void hid_connection_callback(HID_DEV_T *hdev, int status)
 {
-    debugPrint("HID connected: VID: %04x PID: %04X\n", hdev->idVendor, hdev->idProduct);
+    log_print("HID connected: VID: %04x PID: %04X\n", hdev->idVendor, hdev->idProduct);
     hid_init_device(hdev);
 }
 
 void hid_disconnect_callback(HID_DEV_T *hdev, int status)
 {
-    debugPrint("HID disconnected: VID: %04x PID: %04X\n", hdev->idVendor, hdev->idProduct);
+    log_print("HID disconnected: VID: %04x PID: %04X\n", hdev->idVendor, hdev->idProduct);
     if (hdev->user_data)
         free(hdev->user_data);
 }
@@ -46,9 +46,12 @@ void hid_print_all_rxdata(int32_t max_len)
     int32_t i = 0;
     while (hdev != NULL)
     {
-        debugPrint("HID #%d: ", i++);
-        debugPrintHex((const char *)hdev->user_data, (int)max_len);
-        debugPrint("\n\n");
+        textview_print("HID %s #%d: ", LV_SYMBOL_USB LV_SYMBOL_KEYBOARD, i++);
+        for (int i = 0; i < max_len; i++)
+        {
+            textview_print("%02x ", ((uint8_t*)hdev->user_data)[i]);
+        }
+        textview_print("\n\n");
         hdev = hdev->next;
     }
 }
