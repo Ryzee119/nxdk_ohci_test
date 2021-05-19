@@ -15,6 +15,7 @@ void create_gui(void);
 
 void textview_print(const char *format, ...);
 void textview_clear(void);
+void gui_toggle_view();
 
 void log_print(const char *format, ...);
 void log_clear(void);

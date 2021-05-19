@@ -5,13 +5,14 @@ NXDK_SDL = y
 SRCS += \
 	main.c \
 	hid.c \
+	xid.c \
 	uac.c \
 	cdc.c \
 	uvc.c \
 	msc.c \
 	gui.c
 
-#NXDK_USB_DISABLE_HID=y
+NXDK_USB_ENABLE_HID=y
 NXDK_USB_ENABLE_CDC=y
 NXDK_USB_ENABLE_UAC=y
 NXDK_USB_ENABLE_UVC=y

@@ -13,6 +13,9 @@ static lv_group_t *input_group;
 static lv_obj_t *text_view;
 static lv_obj_t *log_view;
 lv_style_t text_view_style;
+lv_style_t log_view_style;
+
+
 
 void log_clear()
 {
@@ -48,6 +51,22 @@ void textview_print(const char *format, ...)
     lv_textarea_add_text(text_view, buffer);
 }
 
+void gui_toggle_view()
+{
+    static int toggle = 0;
+    if (toggle)
+    {
+        lv_obj_fade_out(text_view, 0, 0);
+        lv_obj_fade_in(log_view, 0, 0);
+    }
+    else
+    {
+        lv_obj_fade_out(log_view, 0, 0);
+        lv_obj_fade_in(text_view, 0, 0);
+    }
+    toggle ^= 1;
+}
+
 void create_gui()
 {
     int screen_w = lv_obj_get_width(lv_scr_act());
@@ -60,7 +79,7 @@ void create_gui()
     lv_obj_set_width(text_view, screen_w - (XMARGIN * 2));
     lv_obj_set_height(text_view, screen_h - (YMARGIN * 2));
     lv_obj_align(text_view, NULL, LV_ALIGN_CENTER, 0, 0);
-    //Set a font to the text area
+    //Set a font for the text area
     lv_style_init(&text_view_style);
     lv_style_set_text_font(&text_view_style, LV_STATE_DEFAULT, &lv_font_montserrat_12);
     lv_obj_add_style(text_view, LV_LABEL_PART_MAIN, &text_view_style);
@@ -68,12 +87,18 @@ void create_gui()
 
     //Create a text log area
     log_view = lv_textarea_create(lv_scr_act(), NULL);
+    lv_textarea_set_text(log_view, "");
     lv_textarea_set_cursor_hidden(log_view, true);
     lv_obj_set_width(log_view, screen_w - (XMARGIN * 2) / 2);
     lv_obj_set_height(log_view, screen_h - (YMARGIN * 2) / 2);
     lv_obj_align(log_view, NULL, LV_ALIGN_CENTER, 0, 0);
-    //Set a font to the text area
-    lv_obj_add_style(log_view, LV_LABEL_PART_MAIN, &text_view_style);
+    //Set a font for the log area
+    lv_style_init(&log_view_style);
+    lv_style_set_text_font(&log_view_style, LV_STATE_DEFAULT, &lv_font_montserrat_8);
+    lv_obj_add_style(log_view, LV_LABEL_PART_MAIN, &log_view_style);
     lv_textarea_set_cursor_pos(log_view, 0);
+
+    //Make sure the text view is showing by default
     lv_obj_fade_out(log_view, 0, 0);
+    lv_obj_fade_in(text_view, 0, 0);
 }

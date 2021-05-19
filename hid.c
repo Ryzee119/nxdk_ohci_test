@@ -44,8 +44,19 @@ void hid_print_all_rxdata(int32_t max_len)
         return;
 
     int32_t i = 0;
+    static int toggle = 0;
     while (hdev != NULL)
     {
+        uint8_t buttons = ((uint8_t*)hdev->user_data)[2];
+        if (buttons & 0x10 && buttons & 0x20 && !toggle)
+        {
+            toggle = 1;
+            gui_toggle_view();
+        }
+        else
+        {
+            toggle = 0;
+        }
         textview_print("HID %s #%d: ", LV_SYMBOL_USB LV_SYMBOL_KEYBOARD, i++);
         for (int i = 0; i < max_len; i++)
         {

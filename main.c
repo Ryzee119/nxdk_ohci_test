@@ -9,6 +9,7 @@
 
 #include "gui.h"
 #include "hid.h"
+#include "xid.h"
 #include "uac.h"
 #include "cdc.h"
 #include "uvc.h"
@@ -64,6 +65,7 @@ int main(void)
 
     usbh_core_init();
     usbh_hid_init();
+    usbh_xid_init();
     usbh_umas_init();
     usbh_cdc_init();
     usbh_uac_init();
@@ -74,6 +76,9 @@ int main(void)
 
     //HID interface detected
     usbh_install_hid_conn_callback(hid_connection_callback, hid_disconnect_callback);
+
+    //XID interface detected
+    usbh_install_xid_conn_callback(xid_connection_callback, xid_disconnect_callback);
 
     //Communication Device Class interface detected (Virtual Comport)
     usbh_install_cdc_conn_callback(cdc_connection_callback, cdc_disconnect_callback);
@@ -95,6 +100,7 @@ int main(void)
         usbh_pooling_hubs();
         usbh_memory_used();
         hid_print_all_rxdata(25);
+        xid_print_all_rxdata(25);
         uac_print_all_devices();
         cdc_print_all_rxdata();
         msc_print_all_directories();
