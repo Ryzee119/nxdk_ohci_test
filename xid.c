@@ -7,11 +7,19 @@
 
 static void xid_int_read_callback(UTR_T *utr)
 {
-    //log_print("xid_int_read_callback\n");
+    if (utr->status < 0)
+    {
+        return;
+    }
+
     xid_dev_t *xid_dev = (xid_dev_t *)utr->context;
     uint32_t data_len = utr->xfer_len;
     memcpy(xid_dev->user_data, utr->buff, data_len <= MAX_PACKET ? data_len : MAX_PACKET);
-    usbh_xid_read(xid_dev, 0, xid_int_read_callback);
+
+    //Re-queue the USB transfer
+    utr->xfer_len = 0;
+    utr->bIsTransferDone = 0;
+    usbh_int_xfer(utr);
 }
 
 uint32_t xid_init_device(xid_dev_t *xid_dev)
