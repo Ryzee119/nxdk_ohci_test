@@ -20,6 +20,8 @@ void gui_toggle_view();
 void log_print(const char *format, ...);
 void log_clear(void);
 
+void gui_draw_image(uint8_t index, uint8_t *buff, int32_t width, int32_t height);
+void gui_hide_image(uint8_t index);
 #ifdef __cplusplus
 }
 #endif

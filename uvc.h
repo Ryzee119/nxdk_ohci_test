@@ -17,7 +17,7 @@ extern "C" {
 
 void uvc_connection_callback(UVC_DEV_T *vdev, int status);
 void uvc_disconnect_callback(UVC_DEV_T *vdev, int status);
-void uvc_print_framebuffer();
+void uvc_print_framebuffers();
 uint32_t uvc_init_device(UVC_DEV_T *vdev);
 
 #ifdef __cplusplus

@@ -100,6 +100,7 @@ int main(void)
         uac_print_all_devices();
         cdc_print_all_rxdata();
         msc_print_all_directories();
+        uvc_print_framebuffers();
         lv_task_handler();
     }
 

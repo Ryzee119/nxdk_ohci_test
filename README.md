@@ -23,6 +23,4 @@ make NXDK_DIR=/path/to/nxdk -j
 * USB Audio class (Speaker + microphone)
 * CDC Class
 * Mass storage class example
-
-## Todo
-* USB video class example 
+* USB video class (Must have low speed interface and support YUY2 uncompressed video) 
