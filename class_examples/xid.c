@@ -26,6 +26,7 @@ uint32_t xid_init_device(xid_dev_t *xid_dev)
 {
     xid_dev->user_data = malloc(MAX_PACKET);
     assert(xid_dev->user_data != NULL);
+    memset(xid_dev->user_data, 0x00, MAX_PACKET);
     return usbh_xid_read(xid_dev, 0, xid_int_read_callback);
 }
 
