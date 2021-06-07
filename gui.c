@@ -156,7 +156,7 @@ void gui_draw_image(uint8_t index, uint8_t *buff, int32_t width, int32_t height)
     yuy2_to_rgb32(buff, rgb32, width, height);
     fb.data = (uint8_t*)rgb32;
     lv_img_set_src(image, &fb);
-    lv_obj_align(image, NULL, LV_ALIGN_CENTER, 0, -20);
+    lv_obj_align(image, NULL, LV_ALIGN_CENTER, 0, 0);
     lv_obj_move_foreground(image);
 }
 
@@ -171,6 +171,8 @@ void create_gui()
     int screen_h = lv_obj_get_height(lv_scr_act());
 
     image = lv_img_create(lv_scr_act(), NULL);
+    lv_obj_align(image, NULL, LV_ALIGN_CENTER, 0, -20);
+    lv_obj_move_background(image);
 
     //Create a text area
     text_view = lv_textarea_create(lv_scr_act(), NULL);
