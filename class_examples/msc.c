@@ -135,6 +135,7 @@ void msc_disconnect_callback(MSC_T *msc_dev, int status)
     if (msc_dev->drv_no < MAX_DRIVES)
     {
         f_mount(NULL, fdata->logical_vol, 1);
+        free(fdata->logical_vol);
         logical_drives[msc_dev->drv_no] = 0;
     }
 
